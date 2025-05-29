@@ -1,0 +1,13 @@
+📌 Model Summary Interpretation
+🔹 Coefficients Table
+| Term | Estimate | Std. Error | t value | Pr(>|t|) | |--------------|----------|------------|---------|----------| | Intercept | 534.54 | 14.70 | 36.37 | < 2e-16 | | KOP Inc | -2.46 | 0.78 | -3.13 | 0.00204 |
+
+Intercept (534.54): When KOP Inc is 0, the model predicts a Vert Nudge ROP of about 534.54.
+Slope (-2.46): For each unit increase in KOP Inc, the Vert Nudge ROP decreases by about 2.46 units. This indicates a negative relationship.
+p-value for KOP Inc (0.00204): This is statistically significant (p < 0.01), meaning the relationship is unlikely to be due to chance.
+🔹 Residuals
+These show the spread of the differences between actual and predicted values. The range is fairly wide, suggesting variability in the data.
+
+🔹 R-squared (0.05026)
+This means that only about 5% of the variation in Vert Nudge ROP is explained by KOP Inc.
+While the relationship is statistically significant, it's not very strong—other factors likely play a much larger role.

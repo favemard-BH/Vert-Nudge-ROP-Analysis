@@ -1,0 +1,50 @@
+# Load libraries
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# Define file path and columns
+file_path <- "C:/Users/favemard/Desktop/Personal/Data Scientist/R/ROP Heat Map/Datasets/Drilling Goals.xlsx"
+cols <- c("Wellname", "KOP Inc", "Vert Nudge ROP", "Latitude DD", "Longitude DD")
+
+# Function to load and clean a sheet with source label
+load_and_clean <- function(sheet_name) {
+  read_excel(file_path, sheet = sheet_name) %>%
+    select(all_of(cols)) %>%
+    mutate(
+      `KOP Inc` = as.numeric(gsub("[^0-9\\.]", "", `KOP Inc`)),
+      Source = sheet_name
+    ) %>%
+    filter(!is.na(`KOP Inc`))
+}
+
+# Load and clean both sheets
+data_517_clean <- load_and_clean("517")
+data_41_clean  <- load_and_clean("41")
+
+# Combine datasets
+combined_data <- bind_rows(data_517_clean, data_41_clean)
+
+# Separate datasets
+data_41 <- combined_data %>% filter(Source == "41")
+data_517 <- combined_data %>% filter(Source == "517")
+
+# Fit linear models
+model_41 <- lm(`Vert Nudge ROP` ~ `KOP Inc`, data = data_41)
+model_517 <- lm(`Vert Nudge ROP` ~ `KOP Inc`, data = data_517)
+
+# Summarize models
+summary(model_41)
+summary(model_517)
+
+# Plot both regression lines
+ggplot(combined_data, aes(x = `KOP Inc`, y = `Vert Nudge ROP`, color = Source)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, linetype = "dashed") +
+  labs(
+    title = "Comparison of KOP Inc vs Vert Nudge ROP by Dataset",
+    x = "KOP Inc",
+    y = "Vert Nudge ROP"
+  ) +
+  theme_minimal()

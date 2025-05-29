@@ -48,3 +48,42 @@ ggplot(combined_data, aes(x = `KOP Inc`, y = `Vert Nudge ROP`, color = Source)) 
     y = "Vert Nudge ROP"
   ) +
   theme_minimal()
+
+
+# Optional: group and average if you want smoother lines
+# grouped_data <- combined_data %>%
+#   group_by(Source, `KOP Inc`) %>%
+#   summarise(mean_ROP = mean(`Vert Nudge ROP`, na.rm = TRUE))
+
+# Line plot
+ggplot(combined_data, aes(x = `KOP Inc`, y = `Vert Nudge ROP`, color = Source)) +
+  geom_smooth(method = "lm", se = FALSE, linetype = "solid") +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Comparison of KOP Inc vs Vert Nudge ROP by Dataset",
+    x = "KOP Inc",
+    y = "Vert Nudge ROP",
+    color = "Dataset"
+  ) +
+  theme_minimal()
+
+
+
+# Ensure column names are syntactically valid
+names(combined_data) <- make.names(names(combined_data))
+
+# Round KOP.Inc to the nearest whole number
+combined_data <- combined_data %>%
+  mutate(KOP_bin = round(KOP.Inc, 0))
+
+# Create the grouped bar chart
+ggplot(combined_data, aes(x = factor(KOP_bin), y = Vert.Nudge.ROP, fill = Source)) +
+  stat_summary(fun = mean, geom = "bar", position = "dodge") +
+  scale_fill_manual(values = c("41" = "red", "517" = "turquoise")) +
+  labs(
+    title = "Vert Nudge ROP by KOP Inc (Rounded to Nearest 1)",
+    x = "KOP Inc (Rounded)",
+    y = "Average Vert Nudge ROP",
+    fill = "Dataset"
+  ) +
+  theme_minimal()

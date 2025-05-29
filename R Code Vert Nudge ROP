@@ -1,0 +1,62 @@
+# Fix SSL issue by switching to HTTP
+options(repos = c(CRAN = "http://cran.r-project.org"))
+
+install.packages(c("readxl", "dplyr", "ggplot2", "tidyr", "corrplot"))
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(corrplot)
+
+# Load both sheets from Excel
+data_517 <- read_excel("C:/Users/favemard/Desktop/Personal/Data Scientist/R/ROP Heat Map/Datasets/Drilling Goals.xlsx", sheet = "517")
+data_41  <- read_excel("C:/Users/favemard/Desktop/Personal/Data Scientist/R/ROP Heat Map/Datasets/Drilling Goals.xlsx", sheet = "41")
+
+
+# Select relevant columns
+cols <- c("Wellname", "KOP Inc", "Vert Nudge ROP", "Latitude DD", "Longitude DD")
+
+data_517_selected <- data_517 %>% select(all_of(cols))
+data_41_selected <- data_41 %>% select(all_of(cols))
+
+
+# Clean and convert KOP Inc to numeric
+data_517_selected <- data_517_selected %>%
+  mutate(`KOP Inc` = as.numeric(gsub("[^0-9\\.]", "", `KOP Inc`)))
+
+data_41_selected <- data_41_selected %>%
+  mutate(`KOP Inc` = as.numeric(gsub("[^0-9\\.]", "", `KOP Inc`)))
+
+
+data_41_selected <- data_41_selected %>%
+  mutate(`KOP Inc` = as.numeric(`KOP Inc`))
+
+# Now combine
+combined_data <- bind_rows(data_517_selected, data_41_selected)
+
+
+# Remove rows with NA in KOP Inc
+data_517_selected <- data_517_selected %>%
+  filter(!is.na(`KOP Inc`))
+
+data_41_selected <- data_41_selected %>%
+  filter(!is.na(`KOP Inc`))
+
+# Combine cleaned datasets
+combined_data <- bind_rows(data_517_selected, data_41_selected)
+
+
+# Scatter plot with a linear regression line
+ggplot(combined_data, aes(x = `KOP Inc`, y = `Vert Nudge ROP`)) +
+  geom_point(color = "blue", alpha = 0.6) +
+  geom_smooth(method = "lm", color = "red", se = TRUE, linetype = "dashed") +
+  labs(
+    title = "Relationship between KOP Inc and Vert Nudge ROP",
+    x = "KOP Inc",
+    y = "Vert Nudge ROP"
+  ) +
+  theme_minimal()
+
+# Linear regression model
+model <- lm(`Vert Nudge ROP` ~ `KOP Inc`, data = combined_data)
+summary(model)
